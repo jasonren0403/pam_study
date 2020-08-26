@@ -86,33 +86,44 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags,
 // if 0, the account is ok,otherwise it's locked
 int account_locked(const void* user, const void* host) {
     if (strlen((char*) host) == 0) host = "localhost";
-    printf("checking if account[%s@%s] is locked...", (char *) user, (char *) host);
-    return check_ban((char *)user, (char *)host);
+    printf("checking if account[%s@%s] is locked...\n", (char *) user, (char *) host);
+    return check_ban((char *)host, (char *)user);
 }
 
 int unlock_account(pam_handle_t *pamh, const void* user, const void* host) {
     printf("Unlocking account\n");
-    char *authtok;
-    char tmp[50];
+    char *authtok,*unc_str = NULL;
+    char tmp[50] = {0};
     int ct = parse_ban_info_from_file(BANLIST);
 
     for (int i = 0; i < ct; i++) {
-        char* unc_str = get_unlock_str((char*)user, (char*)host, infos[i]);
-        if (unc_str){
-            strncpy(tmp,unc_str,strlen(unc_str));
-            printf("Your unlock code is:%s\n",unc_str);
+        unc_str = get_unlock_str((char*)user, (char*)host, infos[i]);
+//        printf("%s\n",get_unlock_str((char*)user, (char*)host, infos[i]));
+        if (unc_str!=NULL){
+            strlcpy(tmp,unc_str,sizeof(tmp));
+            printf("[%s]\n",tmp);
             free(unc_str);
             break;
         }   
+    }   
+    
+    if(strlen(tmp)==0)
+    {
+//        printf("%s\n",tmp);
+        printf("No unlock code,please contact administrator\n");
+        return -1;
     }
-    if(strlen(tmp)==0){
-        return 0;
-    }
-    int ret = pam_prompt(pamh, PAM_PROMPT_ECHO_OFF, &authtok, "%s", "Input unlock code>> ");
-    if(strcmp(tmp,authtok)==0){
-        remove_ban(BANLIST,(char*)host,(char*)user);
-        printf("Unlock success!\n");
-        return 0;
+    
+    while(1){
+//        memset(authtok,0,256);
+        int ret = pam_prompt(pamh, PAM_PROMPT_ECHO_ON, &authtok, "%s", "Input unlock code>> ");
+        printf("%s,%s\n",tmp,authtok);
+        if(strcmp(tmp,authtok)==0){
+            remove_ban(BANLIST,(char*)host,(char*)user);
+            printf("Unlock success!\n");
+            return 0;
+        }
+        pam_prompt(pamh,PAM_TEXT_INFO,&authtok,"Incorrect code,please try again!");
     }
     return 0;
 }

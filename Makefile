@@ -11,7 +11,7 @@ all:
 	gcc $(SRC) -fPIC -shared -o $(OBJ)
 	# -lcrypt authDemo.c,simplelogin.c
 final_so:
-	gcc -o ./shared_so/simplelogin.so -shared -fPIC ./src/simplelogin.c ./src/ban.c ./src/changepw.c ./src/config.c -lpam -lcrypt -lbsd -lccl
+	gcc -o ./shared_so/simplelogin.so -shared -fPIC ./src/simplelogin.c ./src/ban.c ./src/changepw.c ./src/config.c ./src/utils.c -lpam -lcrypt -lbsd -lccl
 $(OBJ_DIR)/%.so: $(SRC_DIR)/%.c 
 	@echo + CC $<
 	@mkdir -p $(OBJ_DIR)
@@ -23,6 +23,7 @@ conftool:
 clean:
 	@rm -rf $(BUILD_DIR)
 	@rm -rf $(wildcard $(OBJ_DIR)/*.so)
+	@sudo rm -rf /lib/x86_64-linux-gnu/security/simplelogin.so
 copy:
 	@sudo cp -r ./conf/banned_list /etc/banned_list
 	@sudo cp -r ./conf/mylogin.conf /etc/mylogin.conf
