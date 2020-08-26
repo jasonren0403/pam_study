@@ -3,7 +3,7 @@
 #include <stdlib.h>
 
 #include <time.h>
-
+#include <bsd/string.h>
 #include "apis.h"
 #include "utils.h"
 #include "config.h"
@@ -67,11 +67,13 @@ void remove_ban(const char* filepath, char *host, char *username) {
 
 int check_ban(char *host, char *user) {
     int ct = parse_ban_info_from_file(BANLIST);
-
+//    char tmp[50] = {0};
     for (int i = 0; i < ct; i++) {
         char* unc_str = get_unlock_str((char*) user, (char*) host, infos[i]);
         if (unc_str) {
-            printf("Your unlock code is:%s\n", unc_str);
+//            strlcpy(tmp,unc_str,sizeof(tmp));
+            printf("Your account is locked. \n");
+//            printf("Your unlock code is:%s(%s from get_unlock_str)\n",tmp,unc_str);
             free(unc_str);
             return 1;
         }
@@ -126,19 +128,20 @@ int parse_ban_info_from_file(const char *filepath) {
 }
 
 char* get_unlock_str(char* user, char* host, struct ban_info _info) {
+//    printf("[get_unlock_str()] User:%s,host:%s\n",user,host);
     if (strcmp(_info.host, "%") == 0) {
         // user@% at any host
         if (strcmp(user, _info.username) == 0) {
             //            printf("You are banned!You need %s to unlock.\n", _info.unlock_code);
             char *tmp = (char*) malloc(45 * sizeof (char));
-            strncpy(tmp, _info.unlock_code, sizeof (_info.unlock_code));
+            strlcpy(tmp, _info.unlock_code, sizeof(tmp));         
             return tmp;
         }
     } else {
         if (!strcmp(user, _info.username)&&!strcmp(host, _info.host)) {
-            //            printf("You are banned!You need %s to unlock.\n", _info.unlock_code);
+//            printf("You are banned!You need %s to unlock.\n", _info.unlock_code);
             char *tmp = (char*) malloc(45 * sizeof (char));
-            strncpy(tmp, _info.unlock_code, sizeof (_info.unlock_code));
+            strlcpy(tmp, _info.unlock_code, sizeof (tmp));
             return tmp;
         }
     }
