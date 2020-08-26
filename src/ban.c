@@ -66,15 +66,12 @@ void remove_ban(const char* filepath, char *host, char *username) {
 }
 
 int check_ban(char *host, char *user) {
+    if (strlen(host) == 0) host = "localhost";
+    printf("checking if account[%s@%s] is locked...\n", (char *) user, (char *) host);
     int ct = parse_ban_info_from_file(BANLIST);
-//    char tmp[50] = {0};
     for (int i = 0; i < ct; i++) {
         char* unc_str = get_unlock_str((char*) user, (char*) host, infos[i]);
         if (unc_str) {
-//            strlcpy(tmp,unc_str,sizeof(tmp));
-            printf("Your account is locked. \n");
-//            printf("Your unlock code is:%s(%s from get_unlock_str)\n",tmp,unc_str);
-            free(unc_str);
             return 1;
         }
     }
@@ -129,22 +126,24 @@ int parse_ban_info_from_file(const char *filepath) {
 
 char* get_unlock_str(char* user, char* host, struct ban_info _info) {
 //    printf("[get_unlock_str()] User:%s,host:%s\n",user,host);
+    char *tmp = {0};
+    if(strlen(host)==0) host = "localhost";
+//    printf("[Debug]Comparing %s with %s\n",user,_info.username);
     if (strcmp(_info.host, "%") == 0) {
         // user@% at any host
         if (strcmp(user, _info.username) == 0) {
-            //            printf("You are banned!You need %s to unlock.\n", _info.unlock_code);
-            char *tmp = (char*) malloc(45 * sizeof (char));
-            strlcpy(tmp, _info.unlock_code, sizeof(tmp));         
-            return tmp;
+            tmp = (char*) malloc(strlen(_info.unlock_code+1));
+            strlcpy(tmp, _info.unlock_code, strlen(_info.unlock_code+2));         
         }
     } else {
-        if (!strcmp(user, _info.username)&&!strcmp(host, _info.host)) {
-//            printf("You are banned!You need %s to unlock.\n", _info.unlock_code);
-            char *tmp = (char*) malloc(45 * sizeof (char));
-            strlcpy(tmp, _info.unlock_code, sizeof (tmp));
-            return tmp;
+//        printf("[Debug]Comparing %s with %s\n",host,_info.host);
+        if (strcmp(user, _info.username)==0&&strcmp(host, _info.host)==0) {
+            tmp = (char*) malloc(strlen(_info.unlock_code+1));
+            strlcpy(tmp, _info.unlock_code,strlen(_info.unlock_code)+2);
+//            printf("You are banned!You need %s to unlock. %ld\n", tmp,strlen(tmp));       
         }
     }
-    return NULL;
+//    printf("[Debug]Returning %s\n",tmp);
+    return tmp;
 }
 
