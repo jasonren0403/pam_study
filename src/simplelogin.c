@@ -80,31 +80,32 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags,
             ret = login(pamh, user, rhost, is_trusted ? get_trust_retries() : get_untrust_retries());
         }
     }
-    return PAM_SUCCESS;
+    if(!ret) return PAM_SUCCESS;
+    return PAM_PERM_DENIED;
 }
 
 // if 0, the account is ok,otherwise it's locked
 int account_locked(const void* user, const void* host) {
-    if (strlen((char*) host) == 0) host = "localhost";
-    printf("checking if account[%s@%s] is locked...\n", (char *) user, (char *) host);
-    return check_ban((char *)host, (char *)user);
+    int ret = check_ban((char *)host, (char *)user);
+    if(ret) printf("Your account is locked. \n");
+    return ret;
 }
 
 int unlock_account(pam_handle_t *pamh, const void* user, const void* host) {
     printf("Unlocking account\n");
-    char *authtok,*unc_str = NULL;
+    char *authtok = (char*)malloc(50);
     char tmp[50] = {0};
     int ct = parse_ban_info_from_file(BANLIST);
 
     for (int i = 0; i < ct; i++) {
-        unc_str = get_unlock_str((char*)user, (char*)host, infos[i]);
-//        printf("%s\n",get_unlock_str((char*)user, (char*)host, infos[i]));
-        if (unc_str!=NULL){
-            strlcpy(tmp,unc_str,sizeof(tmp));
-            printf("[%s]\n",tmp);
-            free(unc_str);
+        memset(tmp,0,50);
+        authtok = get_unlock_str((char*)user,(char*)host,infos[i]);
+        if(authtok)
+        {
+//            printf("Debug:copied authtok to temp\n");
+            strlcpy(tmp,authtok,sizeof(tmp));
             break;
-        }   
+        }
     }   
     
     if(strlen(tmp)==0)
@@ -113,7 +114,11 @@ int unlock_account(pam_handle_t *pamh, const void* user, const void* host) {
         printf("No unlock code,please contact administrator\n");
         return -1;
     }
-    
+    else
+    {
+        authtok = NULL;
+        printf("<%s>\n",tmp);
+    }
     while(1){
 //        memset(authtok,0,256);
         int ret = pam_prompt(pamh, PAM_PROMPT_ECHO_ON, &authtok, "%s", "Input unlock code>> ");
@@ -125,7 +130,6 @@ int unlock_account(pam_handle_t *pamh, const void* user, const void* host) {
         }
         pam_prompt(pamh,PAM_TEXT_INFO,&authtok,"Incorrect code,please try again!");
     }
-    return 0;
 }
 
 int login(pam_handle_t *pamh, const void* user, const void* host, int retries) {

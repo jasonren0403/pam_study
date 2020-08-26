@@ -124,7 +124,10 @@ int get_untrust_retries_root(){
 
 void clearup()
 {
-    if(conf_ptr) ccl_release(&config);
+    if(conf_ptr) {
+        ccl_release(&config);
+        conf_ptr = NULL;
+    }
 }
 
 
