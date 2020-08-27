@@ -7,6 +7,7 @@
 #include <unistd.h>  // for int getopt(int argc, char * const argv[], const char *optstring)
 #include <getopt.h>  // for int getopt_long
 #include <stdlib.h>
+#include <string.h>
 #include "config.h"
 #include "apis.h"
 
@@ -21,8 +22,8 @@ static const struct option long_options[] = {
 };
 
 int main(int argc, char *argv[]) {
-    char user[100];
-    char host[100];
+    char user[100]={0};
+    char host[100]={0};
     if (argc == 1) {
         printf("Usage:./ban -u[user] -h[host], --help for this help\n");
         exit(1);
@@ -34,18 +35,22 @@ int main(int argc, char *argv[]) {
         switch (opt) {
             case 'u':
                 snprintf(user, sizeof (user), "%s", optarg);
-                //                printf("User:%s\n", user);
+//                                printf("User:%s\n", user);
                 break;
             case 'h':
                 snprintf(host, sizeof (host), "%s", optarg);
                 //                printf("Host:%s\n", host);
                 break;
             case 'c': //check
+                if(strlen(user)==0||strlen(host)==0) {
+                    fprintf(stderr,"Error:option -c[heck] must be put after -u[ser] and -h[ost]\n");
+                    exit(-1);
+                }
                 ret = check_ban(host, user);
                 if (ret) {
-                    printf("You need unlock!\n");
+                    printf("You need to unlock!\n");
                 } else {
-                    printf("You don't need unlock!\n");
+                    printf("You don't need to unlock!\n");
                 }
                 break;
             case 'r': //remove

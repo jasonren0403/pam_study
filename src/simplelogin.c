@@ -117,12 +117,12 @@ int unlock_account(pam_handle_t *pamh, const void* user, const void* host) {
     else
     {
         authtok = NULL;
-        printf("<%s>\n",tmp);
+        printf("<%s>\n",tmp); //to be removed
     }
     while(1){
 //        memset(authtok,0,256);
         int ret = pam_prompt(pamh, PAM_PROMPT_ECHO_ON, &authtok, "%s", "Input unlock code>> ");
-        printf("%s,%s\n",tmp,authtok);
+//        printf("%s,%s\n",tmp,authtok);
         if(strcmp(tmp,authtok)==0){
             remove_ban(BANLIST,(char*)host,(char*)user);
             printf("Unlock success!\n");
@@ -170,7 +170,8 @@ int login(pam_handle_t *pamh, const void* user, const void* host, int retries) {
             }
         }
     }
-    printf("You hava reached max try. Your account %s@%s will be blocked.\n", (char *) user, (char *) host);
+    pam_prompt(pamh, PAM_TEXT_INFO, NULL, "You hava reached max try. Your account %s@%s will be blocked.\n", (char*)user,(char*)host);
+//    printf("You hava reached max try. Your account %s@%s will be blocked.\n", (char *) user, (char *) host);
     // block the account
     write_ban(CONF,(char*)host,(char*)user);
     return -1;

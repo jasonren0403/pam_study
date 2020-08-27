@@ -10,29 +10,29 @@
 
 
 void write_ban(const char* filepath, char *host, char *username) {
-    FILE* p = fopen(filepath, "a+r");
+    if (strlen(host) == 0) host = "localhost";
+    FILE* p = fopen(filepath, "a+");
     if (p == NULL) {
-        printf("open file %s failed!", filepath);
+        fprintf(stderr,"open file %s failed!\n", filepath);
         return;
     }
     fseek(p, 0, SEEK_END);
     char *buffer = (char *) malloc(40 * sizeof (char));
     random_string(32, buffer);
-    if (strlen(host) == 0) {
-        strncpy(host, "%", strlen("%"));
-    }
-    fprintf(p, "%s@%s %s\n", username, host, buffer);
-    printf("%s:%s->ban list\n", username, host);
+    fprintf(p, "%s@%s %s\n", username, host, buffer); //not ok
+    printf("%s:%s->ban list\n", username, host);//ok
+    free(buffer);
     fclose(p);
 }
 
 void remove_ban(const char* filepath, char *host, char *username) {
+    if (strlen(host) == 0) host = "localhost";
     FILE* p = fopen(filepath, "rw");
     char path_tmp[256] = {0};
     sprintf(path_tmp, "%s_tmp", filepath);
     FILE* tmp = fopen(path_tmp, "a+");
     if (p == NULL) {
-        printf("open file %s failed!", filepath);
+        fprintf(stderr,"open file %s failed!\n", filepath);
         return;
     }
     int num;
@@ -51,7 +51,7 @@ void remove_ban(const char* filepath, char *host, char *username) {
             fprintf(tmp, "%s", _tmp);
             continue;
         }
-
+//        printf("%s,%s %s,%s\n",revbuf[0],username,revbuf[1],host);
         if (strcmp(revbuf[0], username) == 0 && strcmp(revbuf[1], host) == 0) {
             printf("%s:%s removed from ban list\n", username, host);
             continue; //delete this
@@ -67,10 +67,10 @@ void remove_ban(const char* filepath, char *host, char *username) {
 
 int check_ban(char *host, char *user) {
     if (strlen(host) == 0) host = "localhost";
-    printf("checking if account[%s@%s] is locked...\n", (char *) user, (char *) host);
+    printf("checking if account[%s@%s] is locked...\n", user, host);
     int ct = parse_ban_info_from_file(BANLIST);
     for (int i = 0; i < ct; i++) {
-        char* unc_str = get_unlock_str((char*) user, (char*) host, infos[i]);
+        char* unc_str = get_unlock_str(user, host, infos[i]);
         if (unc_str) {
             return 1;
         }
