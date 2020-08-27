@@ -16,7 +16,7 @@
 
 PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags,
         int argc, const char *argv[]) {
-
+    printf("pam_sm_authenticate>>>\n");
     const char *user;
     const char *prompt = "[User-defined PAM Module]Input username>> ";
     if (PAM_SUCCESS != pam_get_user(pamh, &user, prompt)) {

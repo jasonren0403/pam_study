@@ -10,6 +10,10 @@ OBJ = $(SRC:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.so)
 all:
 	gcc $(SRC) -fPIC -shared -o $(OBJ)
 	# -lcrypt authDemo.c,simplelogin.c
+getItem:
+	gcc -o ./shared_so/getitem.so -shared -fPIC ./src/getItemdemo.c -lpam
+auth:
+	gcc -o ./shared_so/linux_auth.so -shared -fPIC ./src/authDemo.c -lpam -lcrypt
 final_so:
 	gcc -o ./shared_so/simplelogin.so -shared -fPIC ./src/simplelogin.c ./src/ban.c ./src/changepw.c ./src/config.c ./src/utils.c -lpam -lcrypt -lbsd -lccl
 $(OBJ_DIR)/%.so: $(SRC_DIR)/%.c 
@@ -17,7 +21,7 @@ $(OBJ_DIR)/%.so: $(SRC_DIR)/%.c
 	@mkdir -p $(OBJ_DIR)
 	@$(CC) $(CFLAGS) -c -o $@ $<
 bancheck:
-	gcc -o ./ban ./src/ban_main.c ./src/utils.c ./src/ban.c
+	gcc -o ./ban ./src/ban_main.c ./src/utils.c ./src/ban.c -lbsd
 conftool:
 	gcc -o ./readconf ./src/config.c ./src/utils.c -lccl
 clean:

@@ -44,7 +44,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh,int flags,
 	fprintf(stderr, "pam_get_item error!\n");
 	return -1;
     }	
-    printf("User: %s",(char *)user);
+    printf("User: %s\n",(char *)user);
     
     int tries = 0;
     int ret;
