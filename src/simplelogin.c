@@ -12,9 +12,9 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#include "apis.h"
-#include "utils.h"
-#include "config.h" //-lccl
+#include "headers/apis.h"
+#include "headers/utils.h"
+#include "headers/config.h" //-lccl
 
 // -lpam
 #include<security/pam_modules.h>

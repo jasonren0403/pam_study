@@ -7,12 +7,8 @@
 #include <time.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include "utils.h"
 
-void copy_str(char *dest, const char *src) {
-    strncpy(dest, src, strlen(src) + 1);
-    dest[strlen(src) - 1] = '\0';
-}
+#include "headers/utils.h"
 
 void trim(char * s, char c) {
     char *t = s;

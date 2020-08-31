@@ -1,12 +1,12 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-
 #include <time.h>
 #include <bsd/string.h>
-#include "apis.h"
-#include "utils.h"
-#include "config.h"
+
+#include "headers/apis.h"
+#include "headers/utils.h"
+#include "headers/config.h"
 
 void write_ban(const char* filepath, char *host, char *username) {
     if (strlen(host) == 0) host = "localhost";
