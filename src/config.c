@@ -7,7 +7,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-
 #include "ccl/ccl.h"
 #include "config.h"
 #include "utils.h"
@@ -15,23 +14,27 @@ struct ccl_t config;
 
 void parse_config()
 {
+    /* Set configuration file details */
+    config.comment_char = '#';
+    config.sep_char = '=';
+    config.str_char = '"';
     int tmp;
     if(ccl_parse(&config, CONF)){
         printf("parse error!\n");
-        exit(-1);
+        return;
     }
 //    conf.blocked = NULL;
 //    conf.trusted = NULL;
     memset(conf.blocked,0,sizeof(conf.blocked));
     memset(conf.trusted,0,sizeof(conf.trusted));
     
-    char* blocked = (char*)ccl_get(&config,"blocked");
+    const char* blocked = ccl_get(&config,"blocked");
     
-    char* trusted = (char*)ccl_get(&config,"trusted");
+    const char* trusted = ccl_get(&config,"trusted");
 
     const char* temp = ccl_get(&config,"trust_retries");
     if(temp) conf.trust_retries = atoi(temp);
-    
+
     const char* temp2 = ccl_get(&config,"trust_retries_root");
     if(temp2) conf.trust_retries_root = atoi(temp2);
     
@@ -40,12 +43,18 @@ void parse_config()
     
     const char* temp4 = ccl_get(&config,"untrust_retries_root");
     if(temp4) conf.untrust_retries_root = atoi(temp4);
-    if(blocked!=NULL) {
-        split(blocked,",",conf.blocked,&tmp);
+    
+    const char* temp5 = ccl_get(&config,"retries_default");
+    if(temp5) conf.normal_retries = atoi(temp5);
+    
+    const char* temp6 = ccl_get(&config,"normal_retries_root");
+    if(temp6) conf.normal_retries_root = atoi(temp6);
+    if(blocked!=NULL) {      
+        split((char*)blocked,",",conf.blocked,&tmp);
         conf._blocked_ct = tmp;
     }
     if(trusted!=NULL) {
-        split(trusted,",",conf.trusted,&tmp);
+        split((char*)trusted,",",conf.trusted,&tmp);
         conf._trusted_ct = tmp;
     }
     conf_ptr = &conf;
@@ -97,28 +106,45 @@ int get_trust_retries(){
     if(!conf_ptr) {
         parse_config();
     }
-    if(!conf.trust_retries) return DEFAULT_TRUST_RETRIES;
+    if(conf.trust_retries==0) return DEFAULT_TRUST_RETRIES;
     else return conf.trust_retries;
 }
 int get_untrust_retries(){
     if(!conf_ptr) {
         parse_config();
     }
-    if(!conf.untrust_retries) return DEFAULT_UNTRUST_RETRIES;
+    if(conf.untrust_retries==0) return DEFAULT_UNTRUST_RETRIES;
     else return conf.untrust_retries;
 }
 int get_trust_retries_root(){
     if(!conf_ptr) {
         parse_config();
     }
-    if(!conf.trust_retries_root) return DEFAULT_TRUST_RETRIES_ROOT;
+    if(conf.trust_retries_root==0) return DEFAULT_TRUST_RETRIES_ROOT;
     else return conf.trust_retries_root;
 }
+
+int get_normal_retries(){
+    if(!conf_ptr){
+        parse_config();
+    }
+    if(conf.normal_retries==0) return DEFAULT_RETRIES;
+    else return conf.normal_retries;
+}
+
+int get_normal_retries_root(){
+    if(!conf_ptr){
+        parse_config();
+    }
+    if(conf.normal_retries_root==0) return DEFAULT_RETRIES_ROOT;
+    else return conf.normal_retries_root;
+}
+
 int get_untrust_retries_root(){
     if(!conf_ptr) {
         parse_config();
     }
-    if(!conf.trust_retries) return DEFAULT_UNTRUST_RETRIES_ROOT;
+    if(conf.trust_retries==0) return DEFAULT_UNTRUST_RETRIES_ROOT;
     else return conf.untrust_retries_root;
 }
 

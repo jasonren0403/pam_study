@@ -75,7 +75,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh,int flags,
     my_spwd = getspnam((char*) user);
     if(my_spwd == NULL) {
 	printf("get shadow password error!\n");
-	return -1;
+	return PAM_CRED_ERR;
     }
     printf("shadow password is %s\n", my_spwd->sp_pwdp);
 //calculate encrypted passwd with crypt function
@@ -88,7 +88,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh,int flags,
 	printf("Authenticate success!\n");
     } else {
 	printf("Wrong password!\n");
-	return -1;
+	return PAM_AUTH_ERR;
     }
     return PAM_SUCCESS;
 }
