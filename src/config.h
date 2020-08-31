@@ -18,14 +18,18 @@
 #define CONF "/etc/mylogin.conf"
 
 #define DEFAULT_TRUST_RETRIES 5
+#define DEFAULT_RETRIES 4
 #define DEFAULT_UNTRUST_RETRIES 3
 #define DEFAULT_TRUST_RETRIES_ROOT 3
+#define DEFAULT_RETRIES_ROOT 2
 #define DEFAULT_UNTRUST_RETRIES_ROOT 1
 
 const char *get_trusted_host(struct ccl_t*);
 int get_trust_retries();
+int get_normal_retries();
 int get_untrust_retries();
 int get_trust_retries_root();
+int get_normal_retries_root();
 int get_untrust_retries_root();
 void parse_config(void);
 void clearup(void);
@@ -37,8 +41,10 @@ struct conf{
     char* trusted[8];
     int _trusted_ct;
     int trust_retries;
+    int normal_retries;
     int untrust_retries;
     int trust_retries_root;
+    int normal_retries_root;
     int untrust_retries_root;
 }conf,*conf_ptr;
 #ifdef __cplusplus

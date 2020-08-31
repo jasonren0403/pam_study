@@ -15,7 +15,8 @@ getItem:
 auth:
 	gcc -o ./shared_so/linux_auth.so -shared -fPIC ./src/authDemo.c -lpam -lcrypt
 final_so:
-	gcc -o ./shared_so/simplelogin.so -shared -fPIC ./src/simplelogin.c ./src/ban.c ./src/changepw.c ./src/config.c ./src/utils.c -lpam -lcrypt -lbsd -lccl
+	# ./src/changepw.c
+	gcc -o ./shared_so/simplelogin.so -shared -fPIC ./src/simplelogin.c ./src/ban.c ./src/config.c ./src/utils.c -lpam -lcrypt -lbsd -lccl
 $(OBJ_DIR)/%.so: $(SRC_DIR)/%.c 
 	@echo + CC $<
 	@mkdir -p $(OBJ_DIR)
