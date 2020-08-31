@@ -75,13 +75,13 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags,
             switch (is_trusted) {
                 case 0:
                 default:
-                    allowed_logins = get_normal_retries();
+                    allowed_logins = get_normal_retries_root();
                     break;
                 case 1:
-                    allowed_logins = get_trust_retries();
+                    allowed_logins = get_trust_retries_root();
                     break;
                 case -1:
-                    allowed_logins = get_untrust_retries();
+                    allowed_logins = get_untrust_retries_root();
                     break;
             }
             ret = login(pamh, user, rhost, allowed_logins);
@@ -201,7 +201,7 @@ int login(pam_handle_t *pamh, const void* user, const void* host, int retries) {
     pam_prompt(pamh, PAM_TEXT_INFO, NULL, "You hava reached max try. Your account %s@%s will be blocked.\n", (char*) user, (char*) host);
     //    printf("You hava reached max try. Your account %s@%s will be blocked.\n", (char *) user, (char *) host);
     // block the account
-    write_ban(CONF, (char*) host, (char*) user);
+    write_ban(BANLIST, (char*) host, (char*) user);
     return -1;
 }
 
@@ -212,7 +212,7 @@ int trusted_host(const void* user, const void* host) {
     parse_config();
     for (int i = 0; i < conf._trusted_ct; i++) {
         snprintf(tmp, sizeof (tmp), "%s@%s", (char*) user, (char*) host);
-        printf("%s %s host:%s\n", conf.trusted[i], tmp, (char*) host);
+//        printf("%s %s host:%s\n", conf.trusted[i], tmp, (char*) host);
         if (strcmp(conf.trusted[i], tmp) == 0) {
             clearup();
             return 1;

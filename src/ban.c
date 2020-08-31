@@ -8,31 +8,47 @@
 #include "utils.h"
 #include "config.h"
 
-
 void write_ban(const char* filepath, char *host, char *username) {
     if (strlen(host) == 0) host = "localhost";
-    FILE* p = fopen(filepath, "a+");
+    FILE* p = fopen(filepath, "r");
+    char path_tmp[256] = {0};
+    snprintf(path_tmp, sizeof (path_tmp), "%s.tmp", filepath);
+    FILE* tmp = fopen(path_tmp, "a+");
+    setbuf(tmp,NULL);
     if (p == NULL) {
-        fprintf(stderr,"open file %s failed!\n", filepath);
+        fprintf(stderr, "open file %s failed!\n", filepath);
         return;
     }
-    fseek(p, 0, SEEK_END);
+    char *line = (char *) malloc(BUFF_LEN * sizeof (char));
+    while (fgets(line, BUFF_LEN, p) != NULL) {
+        printf("%s\n",line);
+        fputs(line,tmp);
+    }
+    
     char *buffer = (char *) malloc(40 * sizeof (char));
     random_string(32, buffer);
-    fprintf(p, "%s@%s %s\n", username, host, buffer); //not ok
-    printf("%s:%s->ban list\n", username, host);//ok
+    fseek(tmp,0,SEEK_END);
+    fprintf(tmp, "%s@%s %s\n", username, host, buffer); //not ok
+    fflush(tmp);
+    fclose(tmp);
+    printf("%s:%s->ban list\n", username, host); //ok
+    
     free(buffer);
+    free(line);
+
     fclose(p);
+    remove(filepath);
+    rename(path_tmp, filepath);
 }
 
 void remove_ban(const char* filepath, char *host, char *username) {
     if (strlen(host) == 0) host = "localhost";
-    FILE* p = fopen(filepath, "rw");
+    FILE* p = fopen(filepath, "r");
     char path_tmp[256] = {0};
-    sprintf(path_tmp, "%s_tmp", filepath);
+    snprintf(path_tmp, sizeof (path_tmp), "%s.tmp", filepath);
     FILE* tmp = fopen(path_tmp, "a+");
     if (p == NULL) {
-        fprintf(stderr,"open file %s failed!\n", filepath);
+        fprintf(stderr, "open file %s failed!\n", filepath);
         return;
     }
     int num;
@@ -51,7 +67,7 @@ void remove_ban(const char* filepath, char *host, char *username) {
             fprintf(tmp, "%s", _tmp);
             continue;
         }
-//        printf("%s,%s %s,%s\n",revbuf[0],username,revbuf[1],host);
+        //        printf("%s,%s %s,%s\n",revbuf[0],username,revbuf[1],host);
         if (strcmp(revbuf[0], username) == 0 && strcmp(revbuf[1], host) == 0) {
             printf("%s:%s removed from ban list\n", username, host);
             continue; //delete this
@@ -125,25 +141,25 @@ int parse_ban_info_from_file(const char *filepath) {
 }
 
 char* get_unlock_str(char* user, char* host, struct ban_info _info) {
-//    printf("[get_unlock_str()] User:%s,host:%s\n",user,host);
+    //    printf("[get_unlock_str()] User:%s,host:%s\n",user,host);
     char *tmp = {0};
-    if(strlen(host)==0) host = "localhost";
-//    printf("[Debug]Comparing %s with %s\n",user,_info.username);
+    if (strlen(host) == 0) host = "localhost";
+    //    printf("[Debug]Comparing %s with %s\n",user,_info.username);
     if (strcmp(_info.host, "%") == 0) {
         // user@% at any host
         if (strcmp(user, _info.username) == 0) {
-            tmp = (char*) malloc(strlen(_info.unlock_code+1));
-            strlcpy(tmp, _info.unlock_code, strlen(_info.unlock_code+2));         
+            tmp = (char*) malloc(strlen(_info.unlock_code + 1));
+            strlcpy(tmp, _info.unlock_code, strlen(_info.unlock_code + 2));
         }
     } else {
-//        printf("[Debug]Comparing %s with %s\n",host,_info.host);
-        if (strcmp(user, _info.username)==0&&strcmp(host, _info.host)==0) {
-            tmp = (char*) malloc(strlen(_info.unlock_code+1));
-            strlcpy(tmp, _info.unlock_code,strlen(_info.unlock_code)+2);
-//            printf("You are banned!You need %s to unlock. %ld\n", tmp,strlen(tmp));       
+        //        printf("[Debug]Comparing %s with %s\n",host,_info.host);
+        if (strcmp(user, _info.username) == 0 && strcmp(host, _info.host) == 0) {
+            tmp = (char*) malloc(strlen(_info.unlock_code + 1));
+            strlcpy(tmp, _info.unlock_code, strlen(_info.unlock_code) + 2);
+            //            printf("You are banned!You need %s to unlock. %ld\n", tmp,strlen(tmp));       
         }
     }
-//    printf("[Debug]Returning %s\n",tmp);
+    //    printf("[Debug]Returning %s\n",tmp);
     return tmp;
 }
 
