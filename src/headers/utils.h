@@ -16,7 +16,6 @@
 void split(char *, const char *, char **, int *);
 void trim(char *, char);
 void random_string(int,char *);
-void copy_str(char*,const char*);
 void present_str_array(char**,int);
 #ifdef __cplusplus
 extern "C" {

@@ -1,6 +1,7 @@
 SRC_DIR = ./src
 BUILD_DIR = ./build
 OBJ_DIR = ./shared_so
+PAM_DIR = /lib/x86_64-linux-gnu/security
 CC = gcc
 CFLAGS = -fPIC -shared -lpam -lcrypt -lbsd
 # gcc -o ./shared_so/simplelogin.so -shared -fPIC ./src/simplelogin.c ./src/ban.c ./src/changepw.c ./src/readconf.c -lpam -lcrypt -lbsd && make copy
@@ -8,27 +9,30 @@ SRC = $(wildcard $(SRC_DIR)/*.c)
 OBJ = $(SRC:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.so)
 
 all:
+	@mkdir -p $(BUILD_DIR)
 	gcc $(SRC) -fPIC -shared -o $(OBJ)
 	# -lcrypt authDemo.c,simplelogin.c
 getItem:
-	gcc -o ./shared_so/getitem.so -shared -fPIC ./src/getItemdemo.c -lpam
+	@mkdir -p $(BUILD_DIR)
+	gcc -o $(OBJ_DIR)/getitem.so -shared -fPIC ./src/demos/getItem.c -lpam
 auth:
-	gcc -o ./shared_so/linux_auth.so -shared -fPIC ./src/authDemo.c -lpam -lcrypt
+	@mkdir -p $(BUILD_DIR)
+	gcc -o $(OBJ_DIR)/linux_auth.so -shared -fPIC ./src/auth.c -lpam -lcrypt
 final_so:
-	# ./src/changepw.c
-	gcc -o ./shared_so/simplelogin.so -shared -fPIC ./src/simplelogin.c ./src/ban.c ./src/config.c ./src/utils.c -lpam -lcrypt -lbsd -lccl
-$(OBJ_DIR)/%.so: $(SRC_DIR)/%.c 
-	@echo + CC $<
-	@mkdir -p $(OBJ_DIR)
-	@$(CC) $(CFLAGS) -c -o $@ $<
+	@mkdir -p $(BUILD_DIR)
+	gcc -o $(OBJ_DIR)/simplelogin.so -shared -fPIC ./src/simplelogin.c ./src/ban.c ./src/config.c ./src/utils.c -lpam -lcrypt -lbsd -lccl
 bancheck:
-	gcc -o ./ban ./src/ban_main.c ./src/utils.c ./src/ban.c -lbsd
+	@mkdir -p $(BUILD_DIR)
+	gcc -o $(BUILD_DIR)/ban ./src/main/ban_main.c ./src/utils.c ./src/ban.c -lbsd
 conftool:
-	gcc -o ./readconf ./src/config.c ./src/utils.c -lccl
+	@mkdir -p $(BUILD_DIR)
+	gcc -o $(BUILD_DIR)/readconf ./src/main/config_main.c ./src/config.c ./src/utils.c -lccl
 clean:
 	@rm -rf $(BUILD_DIR)
 	@rm -rf $(wildcard $(OBJ_DIR)/*.so)
-	@sudo rm -rf /lib/x86_64-linux-gnu/security/simplelogin.so
+	@sudo rm -rf $(PAM_DIR)/simplelogin.so
+	@sudo rm -rf $(PAM_DIR)/linux_auth.so
+	@sudo rm -rf $(PAM_DIR)/getitem.so
 copy:
 	@sudo cp -r ./conf/banned_list /etc/banned_list
 	@sudo cp -r ./conf/mylogin.conf /etc/mylogin.conf

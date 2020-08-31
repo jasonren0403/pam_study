@@ -12,6 +12,11 @@ extern void clearup(void);
 extern struct ccl_t config;
 int main(int argc,char** argv){
     // -lccl
+    //    const struct ccl_pair_t *iter;
+        /* Iterate through all key/value pairs */
+    //    while((iter = ccl_iterate(&config)) != 0) {
+    //      printf("(%s,%s)\n", iter->key, iter->value);
+    //    }
     char tmp[256]={0};
 
     parse_config();

@@ -8,8 +8,8 @@
 #include <string.h>
 
 #include "ccl/ccl.h"
-#include "config.h"
-#include "utils.h"
+#include "headers/config.h"
+#include "headers/utils.h"
 struct ccl_t config;
 
 void parse_config()
@@ -62,11 +62,6 @@ void parse_config()
 
 void PrintConf(struct ccl_t* config)
 {
-    //    const struct ccl_pair_t *iter;
-        /* Iterate through all key/value pairs */
-    //    while((iter = ccl_iterate(&config)) != 0) {
-    //      printf("(%s,%s)\n", iter->key, iter->value);
-    //    }
     if(!config||!conf_ptr)
     {
         parse_config();

@@ -8,8 +8,8 @@
 #include <getopt.h>  // for int getopt_long
 #include <stdlib.h>
 #include <string.h>
-#include "config.h"
-#include "apis.h"
+#include "../headers/config.h"
+#include "../headers/apis.h"
 
 static const struct option long_options[] = {
     {"user", required_argument, NULL, 'u'},
