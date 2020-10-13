@@ -119,7 +119,8 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags,
 
 int account_locked(const void* user, const void* host) {
     int ret = check_ban((char *) host, (char *) user);
-    if (ret) printf("Your account is locked. \n");
+    if (ret) printf("
+                    r account is locked. \n");
     return ret;
 }
 
@@ -198,7 +199,7 @@ int login(pam_handle_t *pamh, const void* user, const void* host, int retries) {
             }
         }
     }
-    pam_prompt(pamh, PAM_TEXT_INFO, NULL, "You hava reached max try. Your account %s@%s will be blocked.\n", (char*) user, (char*) host);
+    pam_prompt(pamh, PAM_TEXT_INFO, NULL, "You have reached max try. Your account %s@%s will be blocked.\n", (char*) user, (char*) host);
     //    printf("You hava reached max try. Your account %s@%s will be blocked.\n", (char *) user, (char *) host);
     // block the account
     write_ban(BANLIST, (char*) host, (char*) user);
